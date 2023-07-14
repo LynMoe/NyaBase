@@ -8,7 +8,7 @@ USER root
 RUN ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 # Replace apt source
-RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list
+RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.bfsu.edu.cn@g' /etc/apt/sources.list
 RUN apt update && apt install -y ca-certificates
 # RUN sed -i 's/http/https/g' /etc/apt/sources.list
 RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak && \
@@ -47,7 +47,8 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
 WORKDIR /tmp
 
 # CONDA_MIRROR is a mirror prefix to speed up downloading
-ARG CONDA_MIRROR=https://mirrors.bfsu.edu.cn/github-release/conda-forge/miniforge/LatestRelease
+# ARG CONDA_MIRROR=https://mirrors.bfsu.edu.cn/github-release/conda-forge/miniforge/LatestRelease
+ARG CONDA_MIRROR=https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/
 
 RUN set -x && \
     # Miniforge installer
