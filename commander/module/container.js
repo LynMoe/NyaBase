@@ -48,20 +48,22 @@ async function createContainer(agent, imageName, envs) {
       perfix = cmd[1]
       cmd = cmd.slice(2).join('|')
 
-      if (!Object.keys(envs).includes(perfix)) {
+      if (!envs[perfix]) {
         image.cmd[i] = ''
         continue
       }
     }
+
     for (const key in envs) {
       const env = envs[key]
       cmd = cmd.replace(new RegExp(`${key}`, 'gmi'), env)
     }
-    logger.info({
-      agent, imageName, cmd, envs
-    })
     image.cmd[i] = cmd
   }
+
+  logger.info({
+    agent, imageName, image,
+  })
 
   const cmd = image.cmd.join(' ')
   

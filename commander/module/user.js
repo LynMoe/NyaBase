@@ -39,7 +39,7 @@ async function getUsers() {
   return allUsers
 }
 
-async function createUser(username, password, groupName) {
+async function createUser(username, password, groupName, comment) {
   const users = client.collection('users')
   const group = await findGroup(groupName)
 
@@ -58,7 +58,7 @@ async function createUser(username, password, groupName) {
   const salt = crypto.generateRandomString(16)
   const enPass = crypto.hash(password + salt, config.key)
 
-  const result = await users.insertOne({ userId, username, password: enPass, salt, group: groupName })
+  const result = await users.insertOne({ userId, username, password: enPass, salt, group: groupName, comment })
   return result
 }
 

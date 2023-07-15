@@ -30,7 +30,7 @@ async function dockerRun(command) {
 async function dockerStopAndRemove(containerId) {
   logger.info({
     message: 'Docker stop',
-    command,
+    containerId,
   })
   try {
     const { stdout, stderr } = await exec(`docker stop ${containerId} && docker rm ${containerId}`)
@@ -55,7 +55,7 @@ async function dockerStopAndRemove(containerId) {
 async function dockerRestart(containerId) {
   logger.info({
     message: 'Docker restart',
-    command,
+    containerId,
   })
   try {
     const { stdout, stderr } = await exec(`docker restart ${containerId}`)

@@ -1,5 +1,7 @@
 const http = require('http')
 const url = require('url')
+const fs = require('fs')
+const path = require('path')
 
 const logger = require('./module/logger').child({ module: 'API' })
 const config = require('./config')
@@ -125,6 +127,11 @@ const routes = {
     delete group._id
 
     const userContainerList = await container.getAllContainerByUsername()[userInfo.username]
+    for (const item of userContainerList) {
+      const agentName = item.agentName
+      item.ip = config.agent[agentName].shownIp
+    }
+
     const images = config.images
 
     data = {
@@ -373,7 +380,7 @@ const routes = {
   },
   '/admin/createUser': async (query) => {
     let status, data
-    const { username, createUsername, createPassword, createGroupName } = query
+    const { username, createUsername, createPassword, createGroupName, createComment } = query
     if (!createUsername || !createPassword || !createGroupName) {
       data = {
         msg: 'Missing field'
@@ -390,7 +397,7 @@ const routes = {
       return { data, status }
     }
 
-    await user.createUser(createUsername, createPassword, createGroupName)
+    await user.createUser(createUsername, createPassword, createGroupName, createComment)
     data = {
       msg: 'Success',
     }
@@ -402,8 +409,8 @@ const routes = {
   },
   '/admin/updateUser': async (query) => {
     let status, data
-    const { username, createUsername, createPassword, createGroupName } = query
-    if (!createUsername || (!createPassword && !createGroupName)) {
+    const { username, createUsername, createPassword, createGroupName, createComment } = query
+    if (!createUsername || (!createPassword && !createGroupName && !createComment)) {
       data = {
         msg: 'Missing field'
       }
@@ -422,6 +429,7 @@ const routes = {
     const needChange = {}
     if (createPassword) needChange.password = createPassword
     if (createGroupName) needChange.group = createGroupName
+    if (createComment) needChange.comment = createComment
 
     await user.updateUser(createUsername, needChange)
     data = {
@@ -633,16 +641,45 @@ const routes = {
 async function handleRoutes(req, res) {
   const parsedUrl = url.parse(req.url, true)
   let pathname = parsedUrl.pathname
-  if (!pathname.startsWith('/api')) {
-    res.writeHead(404, {
-      'Content-Type': 'application/json',
-    })
 
-    res.end(JSON.stringify({
-      msg: 'Unauthorized'
-    }))
+  console.log(pathname)
+  if (!pathname.startsWith('/api')) {
+    pathname = decodeURIComponent(pathname)
+
+    const webPath = path.resolve(__dirname, '../dashboard/dist')
+    const normalizedSafePath = path.normalize('/' + pathname)
+    const safePath = path.join(webPath, normalizedSafePath)
+
+    if (!safePath.startsWith(webPath)) {
+      res.writeHead(403)
+      res.end()
+      return
+    }
+
+    if (!fs.existsSync(safePath) || fs.statSync(safePath).isDirectory()) {
+      res.writeHead(200, {
+        'Content-Type': 'text/html',
+      })
+      res.end(fs.readFileSync(path.resolve(webPath, 'index.html')))
+    } else {
+      const ext = path.extname(safePath)
+      const exts = {
+        '.js': 'application/javascript',
+        '.css': 'text/css',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+        '.ico': 'image/x-icon',
+      }
+      res.writeHead(200, {
+        'Content-Type': exts[ext] || 'text/plain',
+      })
+      res.end(fs.readFileSync(safePath))
+    }
     return
   }
+
   pathname = pathname.replace('/api', '')
 
   if (!req.query.username && pathname !== '/user/login') {

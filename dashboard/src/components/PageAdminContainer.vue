@@ -31,6 +31,7 @@ import { defineComponent } from 'vue'
 import axios from 'axios'
 
 import { Message } from '@arco-design/web-vue'
+import '@arco-design/web-vue/es/message/style/css.js'
 
 import {
   IconSync,

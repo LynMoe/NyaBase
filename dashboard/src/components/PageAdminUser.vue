@@ -25,6 +25,9 @@
           <a-form-item field="group" label="Group">
             <a-input v-model="formUpdate.groupName" />
           </a-form-item>
+          <a-form-item field="comment" label="Comment">
+            <a-input v-model="formUpdate.comment" />
+          </a-form-item>
         </a-form>
       </a-space>
     </a-modal>
@@ -86,6 +89,7 @@ export default defineComponent({
         username: '',
         password: '',
         groupName: '',
+        comment: '',
       },
       pagination: { pageSize: 10 },
       columns: [{
@@ -148,6 +152,7 @@ export default defineComponent({
       this.formUpdate.username = record.username
       this.formUpdate.password = ''
       this.formUpdate.groupName = record.group
+      this.formUpdate.comment = record.comment
       this.visibleUpdate = true
     },
     handleBeforeOkNew() {
@@ -168,7 +173,7 @@ export default defineComponent({
     },
     handleBeforeOkUpdate() {
       console.log(this.formUpdate)
-      return this.updateUser(this.formUpdate.username, this.formUpdate.password, this.formUpdate.groupName)
+      return this.updateUser(this.formUpdate.username, this.formUpdate.password, this.formUpdate.groupName, this.formUpdate.comment)
         .then(() => {
           this.getUserList()
         })
@@ -188,7 +193,7 @@ export default defineComponent({
             createUsername: user.username,
             createPassword: user.password,
             createGroupName: user.group,
-            // comment: user.comment,
+            createComment: user.comment,
           }
         }).then((res) => {
           if (res.data.status === 200) {
@@ -199,12 +204,13 @@ export default defineComponent({
         })
       }))
     },
-    updateUser(username, password, groupName) {
+    updateUser(username, password, groupName, comment) {
       const params = {
         createUsername: username,
       }
       if (password) params.createPassword = password
       if (groupName) params.createGroupName = groupName
+      if (comment) params.createComment = comment
 
       return axios.get('/admin/updateUser', {
         params,

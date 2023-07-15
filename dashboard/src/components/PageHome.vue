@@ -1,17 +1,29 @@
 <template>
   <div style="margin: 0 24px;">
-    <a-row style="margin: 8px 12px 16px 12px;" justify="space-around">
+    <a-modal v-model:visible="visibleChangePassword" title="Change password" @before-ok="handleBeforeOkChangePassword">
+      <a-space direction="vertical" style="width: 100%;">
+        <a-form layout="vertical" :model="formChangePassword">
+          <a-form-item field="newPassword" label="New Password">
+            <a-input-password v-model="formChangePassword.newPassword" />
+          </a-form-item>
+          <a-form-item field="confirmPassword" label="Confirm Password">
+            <a-input-password v-model="formChangePassword.confirmPassword" />
+          </a-form-item>
+        </a-form>
+      </a-space>
+    </a-modal>
+
+    <a-row style="margin: 8px 12px 16px 12px; align-items: baseline;" justify="space-between">
       <a-col :span="4">
         <a-statistic title="Servers" :value="serverList.length" show-group-separator />
       </a-col>
-      <a-col :span="4">
-        <a-statistic title="Users" :value="-1" show-group-separator />
-      </a-col>
-      <a-col :span="4">
-        <a-statistic title="Containers" :value="-1" show-group-separator />
-      </a-col>
-      <a-col :span="4">
-        <a-statistic title="GPUs" :value="-1" show-group-separator />
+      <a-col :span="12" style="text-align: end;">
+        <a-button @click="modalChangePassword" type="text">
+          <template #icon>
+            <icon-lock />
+          </template>
+          <template #default>Change Password</template>
+        </a-button>
       </a-col>
     </a-row>
 
@@ -29,7 +41,7 @@
                 </template>
                 <template #default>Refresh</template>
               </a-button>
-              <a-select :style="{ width: '160px' }" placeholder="Time Period" @change="getData" v-model="timePeriod"
+              <a-select :style="{ width: '80px' }" placeholder="Time Period" @change="getData" v-model="timePeriod"
                 :trigger-props="{ autoFitPopupMinWidth: true }">
                 <a-option value="3600" default>1h</a-option>
                 <a-option value="21600">6h</a-option>
@@ -37,7 +49,7 @@
                 <a-option value="604800">7d</a-option>
                 <a-option value="2592000">30d</a-option>
               </a-select>
-              <a-select :style="{ width: '160px' }" placeholder="Server" @change="getData" v-model="selectedServer"
+              <a-select :style="{ width: '140px' }" placeholder="Server" @change="getData" v-model="selectedServer"
                 :trigger-props="{ autoFitPopupMinWidth: true }">
                 <a-option v-for="server in serverList" :key="server" :value="server">
                   {{ server }}
@@ -58,12 +70,15 @@
 import { defineComponent } from 'vue'
 import axios from 'axios'
 import { Message } from '@arco-design/web-vue'
+import '@arco-design/web-vue/es/message/style/css.js'
 
 import {
   IconSync,
+  IconLock,
 } from '@arco-design/web-vue/es/icon'
 
 import CanvasJS from '@canvasjs/charts'
+import '../../node_modules/font-awesome/css/font-awesome.min.css'
 
 function cyrb53(str, seed = 0) {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
@@ -97,6 +112,7 @@ export default defineComponent({
   components: {
     CanvasJSChart: CanvasJS.vue,
     IconSync,
+    IconLock,
   },
   methods: {
     chartRef(chartInstance) {
@@ -198,6 +214,11 @@ export default defineComponent({
       })
     },
     getData() {
+      if (!this.intervalId) {
+        this.intervalId = setInterval(() => {
+          this.getData()
+        }, 12000)
+      }
       const serverName = this.selectedServer
       const period = this.timePeriod
       return axios.get('/home/systemInformation', {
@@ -225,7 +246,7 @@ export default defineComponent({
             for (const label in chartsList[name]) {
               const value = chartsList[name][label]
               points.push({
-                type: 'splineArea',
+                type: 'stackedArea',
                 name: label,
                 color: stringToColor(label),
                 xValueType: 'dateTime',
@@ -297,6 +318,31 @@ export default defineComponent({
         Message.error('Failed to get data')
       })
     },
+    modalChangePassword() {
+      this.visibleChangePassword = true
+    },
+    handleBeforeOkChangePassword() {
+      if (this.formChangePassword.newPassword !== this.formChangePassword.confirmPassword) {
+        Message.error('Password not match')
+        return false
+      }
+
+      return axios.get('/user/changePassword', {
+        params: {
+          password: this.formChangePassword.newPassword,
+        },
+      }).then((res) => {
+        if (res.data.status === 200) {
+          Message.success('Password changed')
+        }
+      }).catch((err) => {
+        console.log(err)
+      }).finally(() => {
+        this.formChangePassword.newPassword = ''
+        this.formChangePassword.confirmPassword = ''
+      })
+    },
+
   },
   data: () => {
     return {
@@ -309,10 +355,19 @@ export default defineComponent({
       serverList: [],
       selectedServer: '',
       timePeriod: '3600',
+      intervalId: null,
+      formChangePassword: {
+        newPassword: '',
+        confirmPassword: '',
+      },
+      visibleChangePassword: false,
     }
   },
   mounted() {
     this.getServer()
+  },
+  beforeUnmount() {
+    clearInterval(this.intervalId)
   },
 })
 </script>

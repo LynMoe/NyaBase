@@ -58,9 +58,9 @@
       <template #operation="{ record }">
         <a-space>
           <a-button type="outline" @click="updateGroupModal(record)">Update</a-button>
-          <a-popconfirm type="warning" content="Do you intend to delete the group?"
-            @before-ok="handleBeforeOkDelete(record.groupName)">
-            <a-button type="outline" status="danger">Delete</a-button>
+          <a-popconfirm type="warning" content="Do you intend to remove the group?"
+            @before-ok="handleBeforeOkDelete(record.name)">
+            <a-button type="outline" status="danger">Remove</a-button>
           </a-popconfirm>
         </a-space>
 
@@ -213,7 +213,7 @@ export default defineComponent({
           console.log(err)
         })
     },
-    removeUser(groupName) {
+    removeGroup(groupName) {
       return axios.get('/admin/removeGroup', {
         params: {
           groupName,

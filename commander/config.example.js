@@ -11,6 +11,7 @@ module.exports = {
     'A800-1': {
       name: 'A800-1',
       basePort: 32000,
+      shownIp: '202.0.0.1',
       url: 'http://127.0.0.1:3001',
       key: 'a-string-of-32-characters',
       envs: {
@@ -40,8 +41,8 @@ module.exports = {
 
         '-e TZ=Asia/Shanghai',
 
-        '|GPUNUM|--runtime=nvidia --gpus %GPUNUM%',
-        '|CPU_LIMIT|--cpus=%CPU_LIMIT%',
+        '|%GPUNUM%|--runtime=nvidia --gpus %GPUNUM%',
+        '|%CPU_LIMIT%|--cpus=%CPU_LIMIT%',
         
         'nyabase:latest',
       ],

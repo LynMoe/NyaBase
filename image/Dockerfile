@@ -66,6 +66,7 @@ RUN set -x && \
     # Using conda to update all packages: https://github.com/mamba-org/mamba/issues/1092
     $CONDA_DIR/bin/conda update --all --quiet --yes && \
     $CONDA_DIR/bin/conda clean --all -f -y && \
+    chmod -R 777 "${CONDA_DIR}" && \
     # mamba init && \
     rm -rf "/root/.cache"
 

@@ -174,12 +174,7 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
   }
 
   return list
-  // return {
-  //   data,
-  //   list,
-  // }
 }
-
 
 setInterval(retrievalSystemInformation, 1000 * 10)
 retrievalSystemInformation()

@@ -9,7 +9,7 @@
             <a-option v-for="server in serverList" :value="server" :key="server">{{ server }}</a-option>
           </a-select>
         </a-form-item>
-        <a-alert type="info">{{ imageList.filter(i => i.name === formNew.image)[0].note }}</a-alert>
+        <!-- <a-alert type="info">{{ imageList.filter(i => i.name === formNew.image)[0].note }}</a-alert> -->
         <a-form-item field="image" label="Image">
           <a-select v-model="formNew.image">
             <a-option v-for="image in imageList" :value="image.name" :key="image.name">{{ image.name }}</a-option>
@@ -78,6 +78,9 @@
 <script>
 import { defineComponent } from 'vue'
 import { Modal, Message } from '@arco-design/web-vue'
+import '@arco-design/web-vue/es/message/style/css.js'
+import '@arco-design/web-vue/es/modal/style/css.js'
+
 import axios from 'axios'
 import {
   IconPlusCircle,
@@ -144,10 +147,11 @@ export default defineComponent({
                 'Image': imageName,
                 'Username': item.username,
                 'Password': item.password,
+                'IP Address': item.ip,
                 'Base Port': item.basePort,
-                'Process Number': item.pids,
                 'CPU Usage': `${parseFloat(item.cpuPercent).toFixed(3)}%`,
                 'Memory Usage': `${(item.memUsage / 1024 / 1024 / 1024).toFixed(3)} GB`,
+                'Process Number': item.pids,
               },
             }
           })

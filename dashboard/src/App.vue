@@ -26,7 +26,7 @@
             Admin
           </a-menu-item>
           <a-menu-item key="0_4">
-            <IconLock />
+            <IconImport />
             Logout
           </a-menu-item>
         </a-menu>
@@ -34,8 +34,19 @@
       <a-layout-content style="padding: 12px 24px;">
         <RouterView />
       </a-layout-content>
-      <a-layout-footer>
-        <!-- <Footer></Footer> -->
+      <a-layout-footer style="margin: 24px 36px;">
+        <a-space>
+          <a-tag>
+            Copyright © 2023 Lyn
+          </a-tag>
+          <a-tag>
+            <template #icon>
+              <icon-github />
+            </template>
+            Powered by NyaBase
+          </a-tag>
+        </a-space>
+
       </a-layout-footer>
     </div>
     <div v-else>
@@ -60,13 +71,15 @@
 <script>
 import { defineComponent, ref } from 'vue'
 import { Message } from '@arco-design/web-vue'
+import '@arco-design/web-vue/es/message/style/css.js'
 import axios from 'axios'
 
 import {
   IconHome,
   IconStorage,
   IconSettings,
-  IconLock,
+  IconImport,
+  IconGithub,
 } from '@arco-design/web-vue/es/icon'
 
 import { useRouter } from 'vue-router'
@@ -76,7 +89,8 @@ export default defineComponent({
     IconHome,
     IconStorage,
     IconSettings,
-    IconLock,
+    IconImport,
+    IconGithub,
   },
   data: () => {
     return {
@@ -135,8 +149,6 @@ export default defineComponent({
     const router = useRouter()
     return {
       onClickMenuItem: (key) => {
-        Message.info({ content: `You select ${key}`, showIcon: true })
-
         switch (key) {
           case '0_1':
             router.push({ path: '/' })
