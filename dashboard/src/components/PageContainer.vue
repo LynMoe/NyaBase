@@ -43,7 +43,7 @@
       </template>
     </a-page-header>
 
-    <a-card v-for="info in containerList" :key="info.name" :style="{ width: 'auto', margin: '0 12px' }" :title="info.name"
+    <a-card v-for="info in containerList" :key="info.name" :style="{ width: 'auto', margin: '8px 12px' }" :title="info.name"
       hoverable>
       <template #extra>
 
