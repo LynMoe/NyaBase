@@ -32,7 +32,7 @@ async function preProcess(req, res, next) {
     username: req.query.username,
   })
 
-  next()
+  return next()
 }
 
 const __cacheSi = {}
@@ -126,7 +126,7 @@ const routes = {
     const group = userInfo.group
     delete group._id
 
-    const userContainerList = await container.getAllContainerByUsername()[userInfo.username]
+    const userContainerList = await container.getAllContainerByUsername()[userInfo.username] || []
     for (const item of userContainerList) {
       const agentName = item.agentName
       item.ip = config.agent[agentName].shownIp
@@ -734,8 +734,8 @@ const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'x-auth')
 
   if (req.method === 'GET') {
-    preProcess(req, res, async () => {
-      return await handleRoutes(req, res)
+    return preProcess(req, res, () => {
+      return handleRoutes(req, res)
     }).catch((err) => {
       errorHandler(err, req, res)
     })

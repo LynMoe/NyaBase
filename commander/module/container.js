@@ -37,18 +37,19 @@ async function createContainer(agent, imageName, envs) {
     message: 'Create container',
     agent, imageName, envs,
   })
-  const image = config.images[imageName]
+  let image = config.images[imageName]
   if (!image) throw new Error('Image not exist')
+  image = JSON.parse(JSON.stringify(image));
 
   for (const i in image.cmd) {
     let cmd = image.cmd[i]
-    let perfix = ''
+    let prefix = ''
     if (cmd.startsWith('|')) {
       cmd = cmd.split('|')
-      perfix = cmd[1]
+      prefix = cmd[1]
       cmd = cmd.slice(2).join('|')
 
-      if (!envs[perfix]) {
+      if (!envs[prefix]) {
         image.cmd[i] = ''
         continue
       }
@@ -62,6 +63,7 @@ async function createContainer(agent, imageName, envs) {
   }
 
   logger.info({
+    message: 'Replaced cmd',
     agent, imageName, image,
   })
 
