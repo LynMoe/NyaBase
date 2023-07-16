@@ -20,6 +20,7 @@ async function req(host, uri, key, payload) {
       'x-sign': sign,
     },
     responseType: 'text',
+    timeout: 1000 * 8,
   })
   let body = result.data
   sign = result.headers['x-sign'] || ''

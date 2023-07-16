@@ -23,7 +23,18 @@ async function processAgent(agent) {
     agent,
   })
   const path = '/systemInformation'
-  const body = (await req(agent.url, path, agent.key, '{}')).data
+
+  let body
+  try {
+    body = (await req(agent.url, path, agent.key, '{}')).data
+  } catch (e) {
+    logger.error({
+      message: 'Error requesting agent',
+      agent,
+      error: e,
+    })
+    return
+  }
   body.agentName = agent.name
 
   _lastData[agent.name] = body

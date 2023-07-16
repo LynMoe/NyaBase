@@ -246,7 +246,7 @@ export default defineComponent({
             for (const label in chartsList[name]) {
               const value = chartsList[name][label]
               points.push({
-                type: 'stackedArea',
+                type: name.includes('NVIDIA') || name.includes('Memory') ? 'stackedArea': 'splineArea',
                 name: label,
                 color: stringToColor(label),
                 xValueType: 'dateTime',
@@ -268,12 +268,38 @@ export default defineComponent({
                 titleFontSize: 14,
               },
               toolTip: {
-                shared: false,
+                shared: true,
                 contentFormatter: function (e) {
-                  let content = ""
-                  for (let i = 0; i < e.entries.length; i++) {
-                    content += `<span style="color: ${e.entries[i].dataSeries.color}">${e.entries[i].dataSeries.name}</span>` + ": " + e.entries[i].dataPoint.y
+                  let formatter = (num) => {
+                    return num.toFixed(2)
                   }
+
+                  if (name.includes('NVIDIA')) {
+                    formatter = (num) => {
+                      return (num / 1024).toFixed(2) + " GB"
+                    }
+                  } else if (name.includes('CPU')) {
+                    formatter = (num) => {
+                      return num.toFixed(2) + " %"
+                    }
+                  } else if (name.includes('Memory')) {
+                    formatter = (num) => {
+                      return (num / 1024 / 1024 / 1024).toFixed(2) + " GB"
+                    }
+                  } else if (name.includes('Network')) {
+                    formatter = (num) => {
+                      return (num / 1000 / 1000).toFixed(2) + " MB/s"
+                    }
+                  }
+
+                  let content = ''
+                  let total = 0
+                  for (let i = 0; i < e.entries.length; i++) {
+                    content += `<span style="color: ${e.entries[i].dataSeries.color}">${e.entries[i].dataSeries.name}</span>` + ": " + formatter(e.entries[i].dataPoint.y) + '<br/>'
+                    total += e.entries[i].dataPoint.y
+                  }
+
+                  if (e.entries.length > 1) content += `<hr/><span style="color: #4F81BC">Total</span>` + ": " + formatter(total)
                   return content
                 },
               },
@@ -284,25 +310,25 @@ export default defineComponent({
               chartOptions.axisY.title = 'Memory'
               chartOptions.axisY.minimum = 0
               chartOptions.axisY.labelFormatter = function (e) {
-                return (e.value / 1024).toFixed(3) + " GB"
+                return (e.value / 1024).toFixed(2) + " GB"
               }
             } else if (name.includes('CPU')) {
               chartOptions.axisY.title = 'Percentage'
               chartOptions.axisY.minimum = 0
               chartOptions.axisY.labelFormatter = function (e) {
-                return (e.value).toFixed(3) + "%"
+                return (e.value).toFixed(2) + "%"
               }
             } else if (name.includes('Memory')) {
               chartOptions.axisY.title = 'Memory'
               chartOptions.axisY.minimum = 0
               chartOptions.axisY.labelFormatter = function (e) {
-                return (e.value / 1024 / 1024 / 1024).toFixed(3) + " GB"
+                return (e.value / 1024 / 1024 / 1024).toFixed(2) + " GB"
               }
             } else if (name.includes('Network')) {
               chartOptions.axisY.title = 'Network'
               chartOptions.axisY.minimum = 0
               chartOptions.axisY.labelFormatter = function (e) {
-                return (e.value / 1000 / 1000).toFixed(3) + " MB/s"
+                return (e.value / 1000 / 1000).toFixed(2) + " MB/s"
               }
             }
 

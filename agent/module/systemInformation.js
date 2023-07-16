@@ -1,19 +1,45 @@
 const si = require('systeminformation')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
+const logger = require('./logger').child({ module: 'SI' })
 
 const config = require('../config')
 
 async function getNvidiaSmiOutput() {
   try {
-    const { stdout, stderr } = await exec('nvidia-smi -q -d PIDS')
-    if (stderr) {
-      console.error(`Error: ${stderr}`)
-      return
+    const result = await Promise.race([
+      exec('nvidia-smi -q -d PIDS'),
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(false)
+        }, 4000)
+      })
+    ])
+
+    if (!result) {
+      logger.error({
+        message: 'nvidia-smi timeout',
+      })
+      return ''
     }
+
+    const { stdout, stderr } = result
+    if (stderr) {
+      logger.error({
+        message: 'nvidia-smi stderr',
+        stderr,
+      })
+      return ''
+    }
+
     return stdout
   } catch (error) {
     console.error(`Execution error: ${error}`)
+    logger.error({
+      message: 'nvidia-smi error',
+      error,
+    })
+    return ''
   }
 }
 
@@ -23,6 +49,13 @@ function matchGpu(text) {
   let match
   let gpus = {}
   while ((match = regex.exec(text)) !== null) {
+    if (match.length < 3) {
+      logger.warn({
+        message: 'nvidia-smi regex match length < 3',
+        match,
+      })
+      continue
+    }
     let gpu = match[1]
     let processes = []
 
@@ -47,6 +80,7 @@ async function getSystemInformation() {
   const data = await si.get({
     graphics: '*',
     currentLoad: 'currentLoadSystem',
+    processes: '*',
     disksIO: 'rIO,wIO,tIO,rWaitTime,wWaitTime,tWaitTime',
     fsSize: '*',
     fsStats: '*',
