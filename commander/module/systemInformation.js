@@ -40,6 +40,11 @@ async function processAgent(agent) {
   _lastData[agent.name] = body
 
   await storeSystemInformation(body)
+
+  logger.info({
+    message: 'Agent processed',
+    agent,
+  })
 }
 
 async function retrievalSystemInformation() {
@@ -122,6 +127,16 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
         time: 1,
       },
     },
+    {
+      $project: {
+        dockerContainerStats: 1,
+        time: 1,
+        cpu: 1,
+        memory: 1,
+        networkStats: 1,
+        gpu: 1,
+      }
+    }
   ]).toArray()
 
   const list = {

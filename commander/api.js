@@ -657,10 +657,15 @@ async function handleRoutes(req, res) {
     }
 
     if (!fs.existsSync(safePath) || fs.statSync(safePath).isDirectory()) {
-      res.writeHead(200, {
-        'Content-Type': 'text/html',
-      })
-      res.end(fs.readFileSync(path.resolve(webPath, 'index.html')))
+      try {
+        res.writeHead(200, {
+          'Content-Type': 'text/html',
+        })
+        res.end(fs.readFileSync(path.resolve(webPath, 'index.html')))
+      } catch (e) {
+        res.writeHead(404)
+        res.end()
+      }
     } else {
       const ext = path.extname(safePath)
       const exts = {
