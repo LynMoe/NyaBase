@@ -185,10 +185,10 @@ export default defineComponent({
           this.getUserList()
         })
     },
-    createUser(users) {
+    async createUser(users) {
       console.log(users)
-      return Promise.all(users.map((user) => {
-        return axios.get('/admin/createUser', {
+      for (const user of users) {
+        await axios.get('/admin/createUser', {
           params: {
             createUsername: user.username,
             createPassword: user.password,
@@ -202,7 +202,13 @@ export default defineComponent({
         }).catch((err) => {
           console.log(err)
         })
-      }))
+
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve()
+          }, 100)
+        })
+      }
     },
     updateUser(username, password, groupName, comment) {
       const params = {

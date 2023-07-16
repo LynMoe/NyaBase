@@ -79,15 +79,21 @@ async function getSystemInformation() {
       return si.dockerContainerProcesses(i.id).then(processes => {
         return {
           ...dockerIdNameMap[i.id],
+          imageID: i.imageID,
           cpuPercent: i.cpuPercent,
+          cpuStats: i.cpuStats,
           memUsage: i.memUsage,
           memLimit: i.memLimit,
+          memoryStats: i.memoryStats,
           memMaxUsage: i.memoryStats.max_usage,
           pids: i.pids,
           netIO: i.netIO,
           blockIO: i.blockIO,
           restartCount: i.restartCount,
+          createdAt: i.createdAt,
           processesId: processes.map(i => i.pidHost),
+          ports: i.ports,
+          mounts: i.mounts,
           processes,
           networks: i.networks,
         }

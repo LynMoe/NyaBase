@@ -109,6 +109,7 @@ async function findUser(username) {
 async function checkUsernamePassword(username, password) {
   const users = client.collection('users')
   const user = await users.findOne({ username })
+  if (!user) return false
   if (crypto.hash(password + user.salt, config.key) === user.password) return true
   else return false
 }
