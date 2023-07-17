@@ -8,13 +8,18 @@ const _lastData = {}
 const _userLock = {}
 
 async function storeSystemInformation(data) {
-  const toBeInsert = {
-    time: new Date(),
-    ...data,
-  }
+  data.time = new Date()
 
-  const coll = client.collection('systemInformation')
-  await coll.insertOne(toBeInsert)
+  let coll = client.collection('systemInformationProcesses')
+  await coll.insertOne({
+    time: data.time,
+    agentName: data.agentName,
+    processes: data.processes,
+  })
+  delete data.processes
+
+  coll = client.collection('systemInformation')
+  await coll.insertOne(data)
 }
 
 async function processAgent(agent) {
