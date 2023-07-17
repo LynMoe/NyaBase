@@ -79,7 +79,7 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 COPY healthcheck.sh /usr/local/bin/healthcheck.sh
-HEALTHCHECK --interval=10s --timeout=15s --start-period=30s \  
+HEALTHCHECK --interval=120s --timeout=15s --start-period=30s \  
     CMD sh /usr/local/bin/healthcheck.sh
 
 COPY motd.txt /etc/motd

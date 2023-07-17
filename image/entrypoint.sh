@@ -81,7 +81,7 @@ echo "Port ${NB_SSHPORT}" > /etc/ssh/sshd_config.d/10-port.conf
 
 
 # The path to the directory where the SSH host keys are expected to be
-key_dir="/home/$NB_USER/.config/nb/$NB_HOSTNAME"
+key_dir="/home/$NB_USER/.config/nyabase/ssh_key/$NB_HOSTNAME"
 # Check if the directory exists
 if [ -d "$key_dir" ]; then
     echo "Directory $key_dir exists."
@@ -94,6 +94,7 @@ else
     echo "Directory $key_dir does not exist."
 
     # The directory does not exist, so we generate new SSH host keys
+    rm -fr /etc/ssh/ssh_host_*
     ssh-keygen -A
 
     # Make the directory
