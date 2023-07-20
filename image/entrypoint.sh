@@ -106,12 +106,13 @@ fi
 
 
 # Check if the file is created, if not, change the password
-FILE_PATH="/home/$NB_USER/.config/nb/$NB_HOSTNAME/.password_set"
+FILE_PATH="/home/$NB_USER/.config/nyabase/password_set/$NB_HOSTNAME"
 
 if [ -f "$FILE_PATH" ]; then
   echo "Password has been set previously."
 else
   echo "$NB_USER:$NB_USER_PASSWORD" | chpasswd
+  runuser -l $NB_USER -c "mkdir -p "/home/$NB_USER/.config/nyabase/password_set""
   runuser -l $NB_USER -c "touch "$FILE_PATH""
   echo "Password updated successfully and file created."
 fi
