@@ -78,9 +78,9 @@ RUN echo "PATH=$PATH" >> /etc/profile
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-COPY healthcheck.sh /usr/local/bin/healthcheck.sh
-HEALTHCHECK --interval=120s --timeout=15s --start-period=30s \  
-    CMD sh /usr/local/bin/healthcheck.sh
+# COPY healthcheck.sh /usr/local/bin/healthcheck.sh
+# HEALTHCHECK --interval=120s --timeout=15s --start-period=30s \  
+#     CMD sh /usr/local/bin/healthcheck.sh
 
 COPY motd.txt /etc/motd
 RUN sed -i 's/PrintMotd no/PrintMotd yes/' /etc/ssh/sshd_config
