@@ -193,12 +193,19 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
     for (const value of item.gpu) {
       const gpuId = value.name + ' ' + value.pciBus
       if (!list.gpu[gpuId]) list.gpu[gpuId] = {}
+
+      let gpuValue = {}
       for (const u of value.processes) {
         if (pidUserMap[u.pid]) u.pid = pidUserMap[u.pid]
         if (!list.gpu[gpuId][u.pid]) list.gpu[gpuId][u.pid] = []
-        list.gpu[gpuId][u.pid].push({
+        if (!gpuValue[u.pid]) gpuValue[u.pid] = 0
+        gpuValue[u.pid] += parseInt(u.memory)
+      }
+
+      for (const pid in gpuValue) {
+        list.gpu[gpuId][pid].push({
           x,
-          y: parseInt(u.memory),
+          y: gpuValue[pid],
         })
       }
     }
