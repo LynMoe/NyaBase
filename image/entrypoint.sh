@@ -51,7 +51,7 @@ if [ ! -f "/home/$NB_USER/.bashrc" ]; then
 fi
 
 # Mamba init
-runuser -l $NB_USER -c "mamba init"
+runuser -l $NB_USER -c "/var/conda/bin/mamba init"
 
 # Check if the hostname is already in the /etc/hosts file
 hostname_check=$(grep "^.*[[:space:]]$NB_HOSTNAME" /etc/hosts || true)
