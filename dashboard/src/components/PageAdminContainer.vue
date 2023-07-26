@@ -75,10 +75,9 @@ export default defineComponent({
   },
   methods: {
     getContainerList() {
-      console.log('get container list')
       return axios.get('/container/listContainers').then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data.data)
+          // console.log(res.data.data)
           const data = res.data.data.data.containerList
           this.containerList = data.map((container) => {
             return {

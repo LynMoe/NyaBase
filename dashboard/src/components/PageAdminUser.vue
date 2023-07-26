@@ -128,10 +128,9 @@ export default defineComponent({
   },
   methods: {
     getUserList() {
-      console.log('get user list')
       return axios.get('/admin/listUsers').then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data, res.data.data)
+          // console.log(res.data, res.data.data)
           const data = res.data.data.data.userList
           this.userList = data.map((user) => {
             return {
@@ -148,7 +147,7 @@ export default defineComponent({
       })
     },
     updateUserModal(record) {
-      console.log(record)
+      // console.log(record)
       this.formUpdate.username = record.username
       this.formUpdate.password = ''
       this.formUpdate.groupName = record.group
@@ -172,21 +171,18 @@ export default defineComponent({
       })
     },
     handleBeforeOkUpdate() {
-      console.log(this.formUpdate)
       return this.updateUser(this.formUpdate.username, this.formUpdate.password, this.formUpdate.groupName, this.formUpdate.comment)
         .then(() => {
           this.getUserList()
         })
     },
     handleBeforeOkDelete(username) {
-      console.log(username)
       return this.removeUser(username)
         .then(() => {
           this.getUserList()
         })
     },
     async createUser(users) {
-      console.log(users)
       for (const user of users) {
         await axios.get('/admin/createUser', {
           params: {
@@ -197,7 +193,7 @@ export default defineComponent({
           }
         }).then((res) => {
           if (res.data.status === 200) {
-            console.log(res.data, res.data.data)
+            // console.log(res.data, res.data.data)
           }
         }).catch((err) => {
           console.log(err)
@@ -222,7 +218,7 @@ export default defineComponent({
         params,
       }).then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data, res.data.data)
+          // console.log(res.data, res.data.data)
         }
       }).catch((err) => {
         console.log(err)
@@ -235,7 +231,7 @@ export default defineComponent({
         },
       }).then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data, res.data.data)
+          // console.log(res.data, res.data.data)
         }
       }).catch((err) => {
         console.log(err)

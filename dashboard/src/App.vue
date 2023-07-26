@@ -100,7 +100,6 @@ export default defineComponent({
   },
   methods: {
     handleLogin() {
-      console.log(this.formLogin)
       return axios.get('/user/login', {
         params: {
           loginUsername: this.formLogin.username,
@@ -126,7 +125,6 @@ export default defineComponent({
       return axios.get('/container/getMeta').then((res) => {
         this.isLogin = true
         const data = res.data.data
-        console.log(data)
 
         const group = data.group
         if (group.name === 'ADMIN') this.isAdmin = true

@@ -203,7 +203,7 @@ export default defineComponent({
     getServer() {
       return axios.get('/home/getServer').then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data)
+          // console.log(res.data)
           this.serverList = res.data.data.serverList
           this.selectedServer = this.serverList[0]
           this.getData()
@@ -228,7 +228,7 @@ export default defineComponent({
         },
       }).then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data)
+          // console.log(res.data)
 
           const data = res.data.data.data
           const chartsList = {
@@ -237,7 +237,11 @@ export default defineComponent({
             'Network Utilization': data.network,
             ...data.gpu,
           }
-          console.log(chartsList)
+          // console.log(chartsList)
+          let minTime = Object.values(data.cpu).map(i => i[0].x).sort((a, b) => a - b)[0]
+          let maxTime = Object.values(data.cpu).map(i => i[i.length - 1].x).sort((a, b) => b - a)[0]
+          minTime = new Date(minTime)
+          maxTime = new Date(maxTime)
 
           this.chartOptions = []
 
@@ -262,6 +266,10 @@ export default defineComponent({
               title: {
                 text: name,
                 fontSize: 16,
+              },
+              axisX: {
+                minimum: minTime,
+                maximum: maxTime,
               },
               axisY: {
                 title: "Percentage",

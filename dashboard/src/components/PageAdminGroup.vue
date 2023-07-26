@@ -135,10 +135,9 @@ export default defineComponent({
   },
   methods: {
     getGroupList() {
-      console.log('get group list')
       return axios.get('/admin/listGroups').then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data, res.data.data)
+          // console.log(res.data, res.data.data)
           const data = res.data.data.data.groupList
           this.groupList = data.map((group) => {
             return {
@@ -154,7 +153,6 @@ export default defineComponent({
       })
     },
     updateGroupModal(record) {
-      console.log(record)
       this.formUpdate.groupName = record.name
       this.formUpdate.groupNote = record.note
       this.formUpdate.groupData = JSON.stringify(record.data, null, 2)
@@ -166,14 +164,12 @@ export default defineComponent({
       })
     },
     handleBeforeOkUpdate() {
-      console.log(this.formUpdate)
       return this.updateGroup(this.formUpdate.groupName, this.formUpdate.groupNote, this.formUpdate.groupData)
         .then(() => {
           this.getGroupList()
         })
     },
     handleBeforeOkDelete(groupName) {
-      console.log(groupName)
       return this.removeGroup(groupName)
         .then(() => {
           this.getGroupList()
@@ -181,7 +177,6 @@ export default defineComponent({
     },
     createGroup(groupName, groupNote, groupData) {
       groupData = groupData.split('\n').join('')
-      console.log(...arguments)
       return axios.get('/admin/createGroup', {
           params: {
             groupName,
@@ -190,7 +185,7 @@ export default defineComponent({
           }
         }).then((res) => {
           if (res.data.status === 200) {
-            console.log(res.data, res.data.data)
+            // console.log(res.data, res.data.data)
           }
         }).catch((err) => {
           console.log(err)
@@ -198,7 +193,7 @@ export default defineComponent({
     },
     updateGroup(groupName, groupNote, groupData) {
       groupData = groupData.split('\n').join('')
-      console.log(groupData)
+      // console.log(groupData)
       return axios.get('/admin/updateGroup', {
           params: {
             groupName,
@@ -207,7 +202,7 @@ export default defineComponent({
           }
         }).then((res) => {
           if (res.data.status === 200) {
-            console.log(res.data, res.data.data)
+            // console.log(res.data, res.data.data)
           }
         }).catch((err) => {
           console.log(err)
@@ -220,7 +215,7 @@ export default defineComponent({
         },
       }).then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data, res.data.data)
+          // console.log(res.data, res.data.data)
         }
       }).catch((err) => {
         console.log(err)

@@ -132,7 +132,7 @@ export default defineComponent({
       return axios.get('/container/getMeta').then((res) => {
         if (res.data.status === 200) {
           const data = res.data.data
-          console.log(data)
+          // console.log(data)
 
           this.imageList = Object.values(data.images)
           this.group = data.group
@@ -161,7 +161,6 @@ export default defineComponent({
       })
     },
     handleClickNew() {
-      console.log('click new')
       this.visibleNew = true
       this.formNew.server = this.serverList[0]
       this.formNew.image = this.imageList[0].name
@@ -171,7 +170,6 @@ export default defineComponent({
       Message.success('Refreshed')
     },
     handleClickHelp() {
-      console.log('click help')
       Modal.info({
         title: 'Contact Admin',
         content: 'Should you require any assistance, kindly reach out to the administrator at i@lyn.moe.'
@@ -225,7 +223,6 @@ export default defineComponent({
       return true
     },
     handleBeforeOkNew() {
-      console.log('before ok new', this.formNew)
       return axios.get('/container/create', {
         params: {
           server: this.formNew.server,
@@ -233,7 +230,7 @@ export default defineComponent({
         },
       }).then((res) => {
         if (res.data.status === 200) {
-          console.log(res.data, res.data.data)
+          // console.log(res.data, res.data.data)
           Message.success('Created')
         }
       }).catch((err) => {
