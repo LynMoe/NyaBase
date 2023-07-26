@@ -127,7 +127,7 @@ if [ -f "$FILE_PATH" ]; then
 else
   echo "Init file does not exist, creating one"
   runuser -l $NB_USER -c "mkdir -p "/home/$NB_USER/init""
-  runuser -l $NB_USER -c "echo '# This file will be executed once when the system is up' >> $FILE_PATH"
+  runuser -l $NB_USER -c "echo '# This file will run once during system startup.' >> $FILE_PATH"
 fi
 
 
