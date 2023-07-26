@@ -317,6 +317,7 @@ export default defineComponent({
             if (name.includes('NVIDIA')) {
               chartOptions.axisY.title = 'Memory'
               chartOptions.axisY.minimum = 0
+              chartOptions.axisY.maximum = 80 * 1024
               chartOptions.axisY.labelFormatter = function (e) {
                 return (e.value / 1024).toFixed(2) + " GB"
               }
