@@ -211,26 +211,6 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
     }
   }
 
-  // 如果用户停止使用，隔一段时间再使用，可能导致图表中的数据连接在一起，需要人为插入0使得中间断开
-  const gap = 60 * 10 * 1000;
-  for (const gpuId in list.gpu) {
-    for (const pid in list.gpu[gpuId]) {
-      const arr = list.gpu[gpuId][pid];
-      for (let i = arr.length - 1; i > 0; i--) {
-        // 检查间隔是否大于60秒
-        if (arr[i].x - arr[i - 1].x > gap) {
-          // 在大于60秒的数据点后添加一个0
-          arr.splice(i, 0, { x: arr[i - 1].x + 1, y: 0 });
-        }
-        // 检查前一个点与后一个点的间隔是否大于60秒
-        if (i < arr.length - 1 && arr[i + 1].x - arr[i].x > gap) {
-          // 在大于60秒的数据点前添加一个0
-          arr.splice(i + 1, 0, { x: arr[i].x + 1, y: 0 });
-        }
-      }
-    }
-  }
-
   return list
 }
 
