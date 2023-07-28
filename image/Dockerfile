@@ -12,8 +12,8 @@ RUN ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     awk 'BEGIN{OFS=FS} $1 ~ /^deb/ && $2 !~ /^http:\/\/security/ {$2="https:" substr($2,6)} 1' /etc/apt/sources.list.bak > /etc/apt/sources.list && \
     apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y openssh-server sudo vim aria2 git screen \
-        tini curl wget tzdata && \
-    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+        tini curl wget tzdata language-pack-en && \
+    update-locale LANG=en_US.UTF-8 && \
     apt clean && rm -fr /tmp/* && rm -rf /var/lib/apt/lists/* && \
     sed -i 's/^#\(PermitRootLogin\) .*/\1 no/' /etc/ssh/sshd_config; \
     sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config && \
