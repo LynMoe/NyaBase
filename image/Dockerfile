@@ -14,12 +14,12 @@ RUN apt update && apt install -y ca-certificates
 RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak && \
     awk 'BEGIN{OFS=FS} $1 ~ /^deb/ && $2 !~ /^http:\/\/security/ {$2="https:" substr($2,6)} 1' /etc/apt/sources.list.bak > /etc/apt/sources.list
 
-
 # Install packages
-RUN apt update
-RUN DEBIAN_FRONTEND=noninteractive apt install -y openssh-server sudo vim aria2 git screen \
-      tini curl wget tzdata && \
-    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+RUN apt update && \
+    DEBIAN_FRONTEND=noninteractive apt install -y openssh-server sudo vim aria2 git screen \
+        tini curl wget tzdata && \
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    apt clean && rm -fr /tmp/* && rm -rf /var/lib/apt/lists/*
 
 # Deny root login
 RUN sed -i 's/^#\(PermitRootLogin\) .*/\1 no/' /etc/ssh/sshd_config; \
@@ -28,8 +28,8 @@ RUN sed -i 's/^#\(PermitRootLogin\) .*/\1 no/' /etc/ssh/sshd_config; \
 # Enable prompt color in the skeleton .bashrc before creating the default NB_USER
 # hadolint ignore=SC2016
 RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc && \
-   # Add call to conda init script see https://stackoverflow.com/a/58081608/4413446
-   echo 'eval "$(command conda shell.bash hook 2> /dev/null)"' >> /etc/skel/.bashrc
+    # Add call to conda init script see https://stackoverflow.com/a/58081608/4413446
+    echo 'eval "$(command conda shell.bash hook 2> /dev/null)"' >> /etc/skel/.bashrc
 
 ENV CONDA_DIR=/var/conda \
     SHELL=/bin/bash \
@@ -67,7 +67,6 @@ RUN set -x && \
     $CONDA_DIR/bin/conda update --all --quiet --yes && \
     $CONDA_DIR/bin/conda clean --all -f -y && \
     chmod -R 777 "${CONDA_DIR}" && \
-    # mamba init && \
     rm -rf "/root/.cache"
 
 ARG PATH=$CONDA_DIR/bin:$PATH
@@ -82,13 +81,19 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # HEALTHCHECK --interval=120s --timeout=15s --start-period=30s \  
 #     CMD sh /usr/local/bin/healthcheck.sh
 
+
+ARG GIT_COMMIT=develop
+ARG GIT_COMMIT_DATE=--/--/----
+ENV GIT_COMMIT=${GIT_COMMIT}
+ENV GIT_COMMIT_DATE=${GIT_COMMIT_DATE}
 COPY motd.txt /etc/motd
-RUN sed -i 's/PrintMotd no/PrintMotd yes/' /etc/ssh/sshd_config
+RUN echo "Build version:             ${NB_GIT_COMMIT}(${NB_GIT_COMMIT_DATE})\n" >> /etc/motd && \
+    sed -i 's/PrintMotd no/PrintMotd yes/' /etc/ssh/sshd_config && \
+    unset GIT_COMMIT GIT_COMMIT_DATE
 
 RUN echo "root:$(tr -dc 'A-Za-z0-9!@#$%^&*()' < /dev/urandom | head -c 32)" | chpasswd
 
-# RUN apt update && apt upgrade -y
-RUN service ssh start && apt clean && rm -fr /tmp/* && rm -rf /var/lib/apt/lists/*
+RUN service ssh start
 
 WORKDIR /
 

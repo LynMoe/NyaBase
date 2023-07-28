@@ -27,6 +27,7 @@ else
     echo "$NB_USER ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/$NB_USER
 fi
 
+
 # Check if the group exists
 if getent group $NB_GROUP >/dev/null; then
     echo "Group $NB_GROUP already exists"
@@ -38,35 +39,43 @@ else
     echo "Group $NB_GROUP has been created and $NB_USER has been added to the group"
 fi
 
+
 # Set permission for user directory
 chown $NB_USER:$NB_GROUP /home/$NB_USER
 chmod 770 /home/$NB_USER
 
+
 # Output the user and group info
 id $NB_USER
+
 
 # Copy bashrc if not exist
 if [ ! -f "/home/$NB_USER/.bashrc" ]; then
     cp /root/.bashrc /home/$NB_USER/.bashrc
+    chown $NB_USER:$NB_GROUP /home/$NB_USER/.bashrc
 fi
 
+
 # Mamba init
-runuser -l $NB_USER -c "/var/conda/bin/mamba init"
+runuser -l $NB_USER -c "/var/conda/bin/mamba init --all"
+
 
 # Check if the hostname is already in the /etc/hosts file
 hostname_check=$(grep "^.*[[:space:]]$NB_HOSTNAME" /etc/hosts || true)
 
+
 # If the hostname is not found in the file, add it
 if [ -z "$hostname_check" ]; then
-  # Get the IP address of the server
-  ip_address="127.0.0.1"
+    # Get the IP address of the server
+    ip_address="127.0.0.1"
 
-  # Add the IP address and hostname to the /etc/hosts file
-  echo "$ip_address $NB_HOSTNAME" | sudo tee -a /etc/hosts
-  echo "Hostname added to /etc/hosts."
+    # Add the IP address and hostname to the /etc/hosts file
+    echo "$ip_address $NB_HOSTNAME" | sudo tee -a /etc/hosts
+    echo "Hostname added to /etc/hosts."
 else
-  echo "Hostname already in /etc/hosts."
+    echo "Hostname already in /etc/hosts."
 fi
+
 
 # Wipe dead screen
 screen -wipe 2>&1 || true
@@ -105,28 +114,14 @@ else
 fi
 
 
-# Check if the file is created, if not, change the password
-FILE_PATH="/home/$NB_USER/.config/nyabase/password_set/$NB_HOSTNAME"
-
-if [ -f "$FILE_PATH" ]; then
-  echo "Password has been set previously."
-else
-  echo "$NB_USER:$NB_USER_PASSWORD" | chpasswd
-  runuser -l $NB_USER -c "mkdir -p "/home/$NB_USER/.config/nyabase/password_set""
-  runuser -l $NB_USER -c "touch "$FILE_PATH""
-  echo "Password updated successfully and file created."
-fi
-
-
 # Run user's init shell
-FILE_PATH="/home/$NB_USER/init/$NB_HOSTNAME.sh"
+FILE_PATH="/home/$NB_USER/init.sh"
 if [ -f "$FILE_PATH" ]; then
   echo "Init file exists. Executing..."
   chmod +x "$FILE_PATH" 
   runuser -l $NB_USER -c "$FILE_PATH"
 else
   echo "Init file does not exist, creating one"
-  runuser -l $NB_USER -c "mkdir -p "/home/$NB_USER/init""
   runuser -l $NB_USER -c "echo '# This file will run once during system startup.' >> $FILE_PATH"
 fi
 
@@ -138,4 +133,4 @@ done
 
 
 # Start daemon
-/usr/sbin/sshd -D -e
+exec /usr/sbin/sshd -D -e
