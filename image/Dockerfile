@@ -5,43 +5,26 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 USER root
 
 # Set timezone
-RUN ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-
-# Replace apt source
-RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.bfsu.edu.cn@g' /etc/apt/sources.list
-RUN apt update && apt install -y ca-certificates
-# RUN sed -i 's/http/https/g' /etc/apt/sources.list
-RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak && \
-    awk 'BEGIN{OFS=FS} $1 ~ /^deb/ && $2 !~ /^http:\/\/security/ {$2="https:" substr($2,6)} 1' /etc/apt/sources.list.bak > /etc/apt/sources.list
-
-# Install packages
-RUN apt update && \
+RUN ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    sed -i 's@//.*archive.ubuntu.com@//mirrors.bfsu.edu.cn@g' /etc/apt/sources.list && \
+    apt update && apt install -y ca-certificates && \
+    cp /etc/apt/sources.list /etc/apt/sources.list.bak && \
+    awk 'BEGIN{OFS=FS} $1 ~ /^deb/ && $2 !~ /^http:\/\/security/ {$2="https:" substr($2,6)} 1' /etc/apt/sources.list.bak > /etc/apt/sources.list && \
+    apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -y openssh-server sudo vim aria2 git screen \
         tini curl wget tzdata && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
-    apt clean && rm -fr /tmp/* && rm -rf /var/lib/apt/lists/*
-
-# Deny root login
-RUN sed -i 's/^#\(PermitRootLogin\) .*/\1 no/' /etc/ssh/sshd_config; \
-    sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config
-
-# Enable prompt color in the skeleton .bashrc before creating the default NB_USER
-# hadolint ignore=SC2016
-RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc && \
+    apt clean && rm -fr /tmp/* && rm -rf /var/lib/apt/lists/* && \
+    sed -i 's/^#\(PermitRootLogin\) .*/\1 no/' /etc/ssh/sshd_config; \
+    sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config && \
+    # Enable prompt color in the skeleton .bashrc before creating the default NB_USER
+    # hadolint ignore=SC2016
+    sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc && \
     # Add call to conda init script see https://stackoverflow.com/a/58081608/4413446
-    echo 'eval "$(command conda shell.bash hook 2> /dev/null)"' >> /etc/skel/.bashrc
-
-ENV CONDA_DIR=/var/conda \
-    SHELL=/bin/bash \
-    PYTHON_VERSION=3.10    
-
-# Create NB_USER with name jovyan user with UID=1000 and in the 'users' group
-# and make sure these dirs are writable by the `users` group.
-RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
+    echo 'eval "$(command conda shell.bash hook 2> /dev/null)"' >> /etc/skel/.bashrc && \
+    echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
     sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers
-
-# USER ${NB_UID}
 
 # Install conda as jovyan and check the sha256 sum provided on the download site
 WORKDIR /tmp
@@ -49,6 +32,12 @@ WORKDIR /tmp
 # CONDA_MIRROR is a mirror prefix to speed up downloading
 # ARG CONDA_MIRROR=https://mirrors.bfsu.edu.cn/github-release/conda-forge/miniforge/LatestRelease
 ARG CONDA_MIRROR=https://mirror.nju.edu.cn/github-release/conda-forge/miniforge/LatestRelease/
+ARG PATH=$CONDA_DIR/bin:$PATH
+ENV CONDA_DIR=/var/conda \
+    SHELL=/bin/bash \
+    PYTHON_VERSION=3.10
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY motd.txt /etc/motd
 
 RUN set -x && \
     # Miniforge installer
@@ -67,33 +56,17 @@ RUN set -x && \
     $CONDA_DIR/bin/conda update --all --quiet --yes && \
     $CONDA_DIR/bin/conda clean --all -f -y && \
     chmod -R 777 "${CONDA_DIR}" && \
-    rm -rf "/root/.cache"
-
-ARG PATH=$CONDA_DIR/bin:$PATH
-RUN echo "PATH=$PATH" >> /etc/profile
-
-
-# entrypoint
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+    rm -rf "/root/.cache" && \
+    echo "PATH=$PATH" >> /etc/profile && \
+    # entrypoint
+    chmod +x /usr/local/bin/entrypoint.sh && \
+    sed -i 's/PrintMotd no/PrintMotd yes/' /etc/ssh/sshd_config && \
+    echo "root:$(tr -dc 'A-Za-z0-9!@#$%^&*()' < /dev/urandom | head -c 32)" | chpasswd && \
+    service ssh start
 
 # COPY healthcheck.sh /usr/local/bin/healthcheck.sh
 # HEALTHCHECK --interval=120s --timeout=15s --start-period=30s \  
 #     CMD sh /usr/local/bin/healthcheck.sh
-
-
-ARG GIT_COMMIT=develop
-ARG GIT_COMMIT_DATE=--/--/----
-ENV GIT_COMMIT=${GIT_COMMIT}
-ENV GIT_COMMIT_DATE=${GIT_COMMIT_DATE}
-COPY motd.txt /etc/motd
-RUN echo "Build version:             ${NB_GIT_COMMIT}(${NB_GIT_COMMIT_DATE})\n" >> /etc/motd && \
-    sed -i 's/PrintMotd no/PrintMotd yes/' /etc/ssh/sshd_config && \
-    unset GIT_COMMIT GIT_COMMIT_DATE
-
-RUN echo "root:$(tr -dc 'A-Za-z0-9!@#$%^&*()' < /dev/urandom | head -c 32)" | chpasswd
-
-RUN service ssh start
 
 WORKDIR /
 
