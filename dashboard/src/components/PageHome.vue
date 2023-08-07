@@ -292,7 +292,7 @@ export default defineComponent({
                     }
                   } else if (name.includes('Memory')) {
                     formatter = (num) => {
-                      return (num / 1024 / 1024 / 1024).toFixed(2) + " GB"
+                      return (num / 1024 / 1024).toFixed(2) + " GB"
                     }
                   } else if (name.includes('Network')) {
                     formatter = (num) => {
@@ -331,7 +331,7 @@ export default defineComponent({
               chartOptions.axisY.title = 'Memory'
               chartOptions.axisY.minimum = 0
               chartOptions.axisY.labelFormatter = function (e) {
-                return (e.value / 1024 / 1024 / 1024).toFixed(2) + " GB"
+                return (e.value / 1024 / 1024).toFixed(2) + " GB"
               }
             } else if (name.includes('Network')) {
               chartOptions.axisY.title = 'Network'

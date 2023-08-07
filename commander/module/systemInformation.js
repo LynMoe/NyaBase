@@ -161,25 +161,23 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
 
     const x = (new Date(item.time)).getTime()
 
-    for (let i of item.cpu) {
-      let { user, value } = i
-      if (user === 'system') continue
-      user = user.split('_')[2]
+    for (let container of item.dockerContainerStats) {
+      if (!`${container.name}`.startsWith('NYATAINER')) continue
+      const user = `${container.name}`.split('_')[2]
+
       if (!list.cpu[user]) list.cpu[user] = []
       list.cpu[user].push({
         x,
-        y: value,
+        y: container.cpuPercent,
       })
-    }
 
-    for (const i of item.memory) {
-      let { user, value } = i
-      if (user === 'all') continue
-      user = user.split('_')[2]
+      let mem = 0
+      for (const proc of container.processes)
+        mem += parseInt(proc.rss || 0)
       if (!list.mem[user]) list.mem[user] = []
       list.mem[user].push({
         x,
-        y: value,
+        y: mem,
       })
     }
 
