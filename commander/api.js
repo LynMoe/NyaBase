@@ -397,7 +397,7 @@ const routes = {
       return { data, status }
     }
 
-    await user.createUser(createUsername, createPassword, createGroupName, createComment)
+    await user.createUser(createUsername, createPassword, createGroupName, createComment, username)
     data = {
       msg: 'Success',
     }
