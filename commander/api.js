@@ -287,6 +287,16 @@ const routes = {
         return true
       } else return false
     }).includes(true)) || (await user.findUser(username)).group.name === 'ADMIN') {
+      if (!agentName) {
+        containerList = container.getAllContainerByUsername()
+        for (const user in containerList) {
+          if (containerList[user].map(i => i.id).includes(containerId)) {
+            agentName = containerList[user].filter(i => i.id === containerId)[0].agentName
+            break
+          }
+        }
+      }
+      
       const agent = config.agent[agentName]
       await container.restartContainer(agent, containerId)
 
