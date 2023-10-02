@@ -181,30 +181,34 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
       })
     }
 
-    const networkIfName = Object.values(item.networkStats)[0].iface
-    if (!list.network[networkIfName]) list.network[networkIfName] = []
-    list.network[networkIfName].push({
-      x,
-      y: item.networkStats[0].rx_sec + item.networkStats[0].tx_sec,
-    })
+    for (const value of item.networkStats) {
+      const networkIfName = value.iface
+      if (!list.network[networkIfName]) list.network[networkIfName] = []
+      list.network[networkIfName].push({
+        x,
+        y: value.rx_sec + value.tx_sec,
+      })
+    }
 
-    for (const value of item.gpu) {
-      const gpuId = value.name + ' ' + value.pciBus
-      if (!list.gpu[gpuId]) list.gpu[gpuId] = {}
-
-      let gpuValue = {}
-      for (const u of value.processes) {
-        if (pidUserMap[u.pid]) u.pid = pidUserMap[u.pid]
-        if (!list.gpu[gpuId][u.pid]) list.gpu[gpuId][u.pid] = []
-        if (!gpuValue[u.pid]) gpuValue[u.pid] = 0
-        gpuValue[u.pid] += parseInt(u.memory)
-      }
-
-      for (const pid in gpuValue) {
-        list.gpu[gpuId][pid].push({
-          x,
-          y: gpuValue[pid],
-        })
+    if (item.gpu) {
+      for (const value of item.gpu) {
+        const gpuId = value.name + ' ' + value.pciBus
+        if (!list.gpu[gpuId]) list.gpu[gpuId] = {}
+  
+        let gpuValue = {}
+        for (const u of value.processes) {
+          if (pidUserMap[u.pid]) u.pid = pidUserMap[u.pid]
+          if (!list.gpu[gpuId][u.pid]) list.gpu[gpuId][u.pid] = []
+          if (!gpuValue[u.pid]) gpuValue[u.pid] = 0
+          gpuValue[u.pid] += parseInt(u.memory)
+        }
+  
+        for (const pid in gpuValue) {
+          list.gpu[gpuId][pid].push({
+            x,
+            y: gpuValue[pid],
+          })
+        }
       }
     }
   }

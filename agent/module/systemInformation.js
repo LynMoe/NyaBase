@@ -7,21 +7,9 @@ const config = require('../config')
 
 async function getNvidiaSmiOutput() {
   try {
-    const result = await Promise.race([
-      exec('nvidia-smi -q -d PIDS'),
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(false)
-        }, 4000)
-      })
-    ])
-
-    if (!result) {
-      logger.error({
-        message: 'nvidia-smi timeout',
-      })
-      return ''
-    }
+    const result = await exec('nvidia-smi -q -d PIDS', {
+      timeout: 1000 * 3,
+    })
 
     const { stdout, stderr } = result
     if (stderr) {
@@ -77,19 +65,25 @@ function matchGpu(text) {
 }
 
 async function getSystemInformation() {
-  const data = await si.get({
-    graphics: '*',
+  let nvsmi = await getNvidiaSmiOutput()
+  nvsmi = matchGpu(nvsmi)
+
+  const siOpt = {
+    // graphics: '*',
     currentLoad: 'currentLoadSystem',
     processes: '*',
     disksIO: 'rIO,wIO,tIO,rWaitTime,wWaitTime,tWaitTime',
     fsSize: '*',
     fsStats: '*',
     mem: 'total,free,used',
-  })
+  }
+
+  if (Object.keys(nvsmi).length) siOpt.graphics = '*'
+
+  const data = await si.get(siOpt)
 
   data.networkStats = await si.networkStats(config.netIface.join(','))
 
-  data.graphics = [...data.graphics.controllers.filter(i => i.vendor.indexOf('NVIDIA') != -1)]
   data.currentLoadSystem = data.currentLoad.currentLoadSystem
   data.fsSize = data.fsSize.filter(i => config.diskPath.includes(i.fs))
 
@@ -134,32 +128,34 @@ async function getSystemInformation() {
       })
     }))
 
-  let nvsmi = await getNvidiaSmiOutput()
-  nvsmi = matchGpu(nvsmi)
+  if (Object.keys(nvsmi).length) {
 
-  for (const index in nvsmi) {
-    const item = nvsmi[index]
-    for (const i of item) {
-      for (const container of data.dockerContainerStats) {
-        if (container.processesId.includes(i.pid)) {
-          i.containerName = container.name
+    for (const index in nvsmi) {
+      const item = nvsmi[index]
+      for (const i of item) {
+        for (const container of data.dockerContainerStats) {
+          if (container.processesId.includes(i.pid)) {
+            i.containerName = container.name
+          }
         }
       }
     }
-  }
+    
+    data.graphics = [...data.graphics.controllers.filter(i => i.vendor.indexOf('NVIDIA') != -1)]
+    data.gpu = data.graphics.map(i => {
+      return {
+        memoryTotal: i.memoryTotal,
+        temperatureGpu: i.temperatureGpu,
+        powerDraw: i.powerDraw,
+        pciBus: i.pciBus,
+        vendor: i.vendor,
+        name: i.name,
+        processes: nvsmi[i.pciBus] || [],
+      }
+    })
 
-  data.gpu = data.graphics.map(i => {
-    return {
-      memoryTotal: i.memoryTotal,
-      temperatureGpu: i.temperatureGpu,
-      powerDraw: i.powerDraw,
-      pciBus: i.pciBus,
-      vendor: i.vendor,
-      name: i.name,
-      processes: nvsmi[i.pciBus] || [],
-    }
-  })
-  delete data.graphics
+    delete data.graphics
+  }
 
   data.cpu = [{
     user: 'system',
