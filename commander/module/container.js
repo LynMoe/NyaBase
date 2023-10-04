@@ -27,6 +27,14 @@ function getAllContainerByUsername() {
       if (!containers[username]) containers[username] = []
       containers[username].push(cont)
     }
+
+    for (const username in containers) {
+      containers[username].sort((a, b) => {
+        if (a.basePort > b.basePort) return 1
+        if (a.basePort < b.basePort) return -1
+        return 0
+      })
+    }
   }
 
   return containers
