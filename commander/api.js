@@ -625,7 +625,7 @@ const routes = {
     const cacheObj = __cacheSi[cacheName]
 
     const nowTime = (new Date()).getTime()
-    if (nowTime - cacheObj.time > 10 * 1000) {
+    if (nowTime - cacheObj.time > (period / 360) * 1000) {
       const siData = await si.getSystemInfomation(serverName, period, 200)
       let result = siData
 
