@@ -139,6 +139,7 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
         cpu: 1,
         memory: 1,
         networkStats: 1,
+        fsSize: 1,
         gpu: 1,
       }
     }
@@ -187,6 +188,17 @@ async function getSystemInfomation(agentName, timePeriod, pointNum = 100) {
       list.network[networkIfName].push({
         x,
         y: value.rx_sec + value.tx_sec,
+      })
+    }
+
+    for (const value of item.fsSize) {
+      const mountName = value.mount
+      if (!list.disk[mountName]) list.disk[mountName] = []
+      list.disk[mountName].push({
+        x,
+        y: value.used,
+        size: value.size,
+        use: value.use,
       })
     }
 

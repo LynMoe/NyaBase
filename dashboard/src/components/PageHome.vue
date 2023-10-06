@@ -234,6 +234,7 @@ export default defineComponent({
           const chartsList = {
             'CPU Utilization': data.cpu,
             'Memory Utilization': data.mem,
+            'Disk Utilization': data.disk,
             'Network Utilization': data.network,
             ...data.gpu,
           }
@@ -298,12 +299,21 @@ export default defineComponent({
                     formatter = (num) => {
                       return (num / 1000 / 1000).toFixed(2) + " MB/s"
                     }
+                  } else if (name.includes('Disk')) {
+                    formatter = (num, item) => {
+                      let suffix = ''
+                      if (item && item.use) {
+                        suffix = ' (' + item.use.toFixed(2) + '%)'
+                      }
+
+                      return (num / 1024 / 1024 / 1024).toFixed(2) + " GB" + suffix
+                    }
                   }
 
                   let content = ''
                   let total = 0
                   for (let i = 0; i < e.entries.length; i++) {
-                    content += `<span style="color: ${e.entries[i].dataSeries.color}">${e.entries[i].dataSeries.name}</span>` + ": " + formatter(e.entries[i].dataPoint.y) + '<br/>'
+                    content += `<span style="color: ${e.entries[i].dataSeries.color}">${e.entries[i].dataSeries.name}</span>` + ": " + formatter(e.entries[i].dataPoint.y, e.entries[i].dataPoint) + '<br/>'
                     total += e.entries[i].dataPoint.y
                   }
 
@@ -338,6 +348,12 @@ export default defineComponent({
               chartOptions.axisY.minimum = 0
               chartOptions.axisY.labelFormatter = function (e) {
                 return (e.value / 1000 / 1000).toFixed(2) + " MB/s"
+              }
+            } else if (name.includes('Disk')) {
+              chartOptions.axisY.title = 'Disk'
+              chartOptions.axisY.minimum = 0
+              chartOptions.axisY.labelFormatter = function (e) {
+                return (e.value / 1024 / 1024 / 1024).toFixed(2) + " GB"
               }
             }
 
