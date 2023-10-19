@@ -41,6 +41,7 @@ async function processAgent(agent) {
     return
   }
   body.agentName = agent.name
+  body.fetchTime = (new Date()).getTime()
 
   _lastData[agent.name] = body
 

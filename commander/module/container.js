@@ -10,6 +10,9 @@ function getAllContainerByUsername() {
   for (const agentName in si._lastData) {
     const agentData = si._lastData[agentName]
 
+    const time = (new Date()).getTime() - agentData.fetchTime
+    if (time > 60 * 1000) continue
+
     for (let cont of agentData.dockerContainerStats) {
       const contNameSplit = `${cont.name}`.split('_')
       if (contNameSplit.length < 5 || contNameSplit[0] !== 'NYATAINER') continue
