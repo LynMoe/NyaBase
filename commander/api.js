@@ -204,10 +204,14 @@ const routes = {
         msg: 'Success'
       }
     } catch (e) {
+      logger.error({
+        message: 'Create container error',
+        error: e,
+      })
+      
       status = 500
       data = {
         msg: 'Internal service error',
-        e,
       }
     }
 
