@@ -111,7 +111,7 @@ const routes = {
     }
 
     await user.updateUser(username, {
-      password,
+      password: `${password}`.trim(),
     })
 
     return {
@@ -394,7 +394,12 @@ const routes = {
   },
   '/admin/createUser': async (query) => {
     let status, data
-    const { username, createUsername, createPassword, createGroupName, createComment } = query
+    let { username, createUsername, createPassword, createGroupName, createComment } = query
+    createUsername = `${createUsername}`.trim()
+    createPassword = `${createPassword}`.trim()
+    createGroupName = `${createGroupName}`.trim()
+    createComment = `${createComment}`.trim()
+
     if (!createUsername || !createPassword || !createGroupName) {
       data = {
         msg: 'Missing field'
@@ -423,7 +428,12 @@ const routes = {
   },
   '/admin/updateUser': async (query) => {
     let status, data
-    const { username, createUsername, createPassword, createGroupName, createComment } = query
+    let { username, createUsername, createPassword, createGroupName, createComment } = query
+    createUsername = `${createUsername}`.trim()
+    createPassword = `${createPassword}`.trim()
+    createGroupName = `${createGroupName}`.trim()
+    createComment = `${createComment}`.trim()
+
     if (!createUsername || (!createPassword && !createGroupName && !createComment)) {
       data = {
         msg: 'Missing field'
