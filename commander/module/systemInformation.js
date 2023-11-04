@@ -10,13 +10,16 @@ const _userLock = {}
 async function storeSystemInformation(data) {
   data.time = new Date()
 
-  let coll = client.collection('systemInformationProcesses')
-  await coll.insertOne({
-    time: data.time,
-    agentName: data.agentName,
-    processes: data.processes,
-  })
-  delete data.processes
+  let coll
+  if (config.system.storeProcess) {
+    client.collection('systemInformationProcesses')
+    await coll.insertOne({
+      time: data.time,
+      agentName: data.agentName,
+      processes: data.processes,
+    })
+    delete data.processes
+  }
 
   coll = client.collection('systemInformation')
   await coll.insertOne(data)
@@ -31,7 +34,9 @@ async function processAgent(agent) {
 
   let body
   try {
-    body = (await req(agent.url, path, agent.key, '{}')).data
+    body = (await req(agent.url, path, agent.key, {
+      getProcess: config.system.storeProcess,
+    })).data
   } catch (e) {
     logger.error({
       message: 'Error requesting agent',

@@ -64,19 +64,19 @@ function matchGpu(text) {
   return gpus
 }
 
-async function getSystemInformation() {
+async function getSystemInformation(getProcess = false) {
   let nvsmi = await getNvidiaSmiOutput()
   nvsmi = matchGpu(nvsmi)
 
   const siOpt = {
     // graphics: '*',
     currentLoad: 'currentLoadSystem',
-    processes: '*',
     disksIO: 'rIO,wIO,tIO,rWaitTime,wWaitTime,tWaitTime',
     fsSize: '*',
     fsStats: '*',
     mem: 'total,free,used',
   }
+  if (getProcess) siOpt.processes = '*'
 
   if (Object.keys(nvsmi).length) siOpt.graphics = '*'
 

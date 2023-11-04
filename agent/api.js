@@ -90,7 +90,7 @@ async function handleRoutes(req, res) {
 
   switch (pathname) {
     case '/systemInformation':
-      data = await si.getSystemInformation()
+      data = await si.getSystemInformation(payload.getProcess || false)
       break
 
     case '/docker/run':
