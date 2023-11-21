@@ -108,6 +108,15 @@ function stringToColor(str) {
   return color
 }
 
+function chunkArray(array, n) {
+  let result = [];
+  for (let i = 0; i < array.length; i += n) {
+    let chunk = array.slice(i, i + n);
+    result.push(chunk);
+  }
+  return result;
+}
+
 export default defineComponent({
   components: {
     CanvasJSChart: CanvasJS.vue,
@@ -312,10 +321,26 @@ export default defineComponent({
 
                   let content = ''
                   let total = 0
-                  for (let i = 0; i < e.entries.length; i++) {
-                    content += `<span style="color: ${e.entries[i].dataSeries.color}">${e.entries[i].dataSeries.name}</span>` + ": " + formatter(e.entries[i].dataPoint.y, e.entries[i].dataPoint) + '<br/>'
-                    total += e.entries[i].dataPoint.y
+                  let chunk = 1
+
+                  if (e.entries.length > 15) {
+                    chunk = 2
+                  } else if (e.entries.length > 30) {
+                    chunk = 3
                   }
+
+                  const entries = chunkArray(e.entries, chunk)
+
+                  content += '<table style="line-height: 10px">'
+                  for (const item of entries) {
+                    content += '<tr>'
+                    for (const entry of item) {
+                      content += '<td style="color: ' + entry.dataSeries.color + '">' + entry.dataSeries.name + '</td><td style="text-align: right; padding-left: 5px;">' + formatter(entry.dataPoint.y, entry.dataPoint) + '</td>'
+                      total += entry.dataPoint.y
+                    }
+                    content += '</tr>'
+                  }
+                  content += '</table>'
 
                   if (e.entries.length > 1) content += `<hr/><span style="color: #4F81BC">Total</span>` + ": " + formatter(total)
                   return content
