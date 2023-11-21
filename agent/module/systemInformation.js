@@ -99,7 +99,15 @@ async function getSystemInformation(getProcess = false) {
 
   delete data.dockerContainers
 
-  data.dockerContainerStats = await si.dockerContainerStats(ids.join(','))
+  {
+    const proms = []
+
+    while (ids.length) {
+      proms.push(si.dockerContainerStats(ids.splice(0, 10).join(',')))
+    }
+
+    data.dockerContainerStats = (await Promise.all(proms)).flat()
+  }
 
   data.dockerContainerStats = await Promise.all(data.dockerContainerStats
     .filter(i => Object.keys(dockerIdNameMap).includes(i.id))
