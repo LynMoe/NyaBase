@@ -102,6 +102,7 @@ async function getSystemInformation(getProcess = false) {
   data.dockerContainerStats = await si.dockerContainerStats(ids.join(','))
 
   data.dockerContainerStats = await Promise.all(data.dockerContainerStats
+    .filter(i => Object.keys(dockerIdNameMap).includes(i.id))
     .filter(i => dockerIdNameMap[i.id].name.startsWith('NYATAINER_'))
     .map(i => {
       return si.dockerContainerProcesses(i.id).then(processes => {
