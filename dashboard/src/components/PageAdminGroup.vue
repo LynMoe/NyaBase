@@ -72,6 +72,7 @@
 <script>
 import { defineComponent } from 'vue'
 import axios from 'axios'
+import { Message } from '@arco-design/web-vue'
 
 import {
   IconPlusCircle,
@@ -186,6 +187,7 @@ export default defineComponent({
         }).then((res) => {
           if (res.data.status === 200) {
             // console.log(res.data, res.data.data)
+            Message.success(`Group ${groupName} created successfully`)
           }
         }).catch((err) => {
           console.log(err)
@@ -203,6 +205,7 @@ export default defineComponent({
         }).then((res) => {
           if (res.data.status === 200) {
             // console.log(res.data, res.data.data)
+            Message.success(`Group ${groupName} updated successfully`)
           }
         }).catch((err) => {
           console.log(err)
@@ -216,6 +219,7 @@ export default defineComponent({
       }).then((res) => {
         if (res.data.status === 200) {
           // console.log(res.data, res.data.data)
+          Message.success(`Group ${groupName} removed successfully`)
         }
       }).catch((err) => {
         console.log(err)

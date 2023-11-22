@@ -67,6 +67,7 @@
 <script>
 import { defineComponent } from 'vue'
 import axios from 'axios'
+import { Message } from '@arco-design/web-vue'
 
 import {
   IconPlusCircle,
@@ -141,6 +142,8 @@ export default defineComponent({
               created: user.created,
             }
           })
+
+          Message.success('User list updated successfully')
         }
       }).catch((err) => {
         console.log(err)
@@ -194,6 +197,7 @@ export default defineComponent({
         }).then((res) => {
           if (res.data.status === 200) {
             // console.log(res.data, res.data.data)
+            Message.success(`User ${user.username} created successfully`)
           }
         }).catch((err) => {
           console.log(err)
@@ -219,6 +223,7 @@ export default defineComponent({
       }).then((res) => {
         if (res.data.status === 200) {
           // console.log(res.data, res.data.data)
+          Message.success(`User ${username} updated successfully`)
         }
       }).catch((err) => {
         console.log(err)
@@ -232,6 +237,7 @@ export default defineComponent({
       }).then((res) => {
         if (res.data.status === 200) {
           // console.log(res.data, res.data.data)
+          Message.success(`User ${username} removed successfully`)
         }
       }).catch((err) => {
         console.log(err)
