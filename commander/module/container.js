@@ -33,9 +33,7 @@ function getAllContainerByUsername() {
 
     for (const username in containers) {
       containers[username].sort((a, b) => {
-        if (a.basePort > b.basePort) return 1
-        if (a.basePort < b.basePort) return -1
-        return 0
+        a.agentName.localeCompare(b.agentName)
       })
     }
   }
