@@ -82,18 +82,28 @@ sudo mount -a
 
 ### 配置防火墙
 
+更改 `SRC` 为本机容器的 IP 段, 最好是一个独立且不重复的网段, 并根据自身需求修改其余内容, 然后将下列命令保存为脚本执行
+
+> 请注意, 本脚本会清空 `DOCKER-USER` 链, 请确保该链没有被其他程序使用
+
 ```bash
 export SRC="10.88.101.0/24"
 
 sudo docker network create --driver bridge --subnet $SRC nyatainer_network
 
-sudo iptables -I DOCKER-USER -s $SRC -d 10.0.4.0/24 -j DROP # 集群网段
-sudo iptables -I DOCKER-USER -s $SRC -d 172.16.0.0/12 -j DROP # 本地容器网段
+sudo iptables -F DOCKER-USER
+sudo iptables -A DOCKER-USER -j RETURN
 
-sudo iptables -I DOCKER-USER -s $SRC -d 10.0.4.5 -p tcp --dport 10000:65535 -j ACCEPT # 允许跳板机连接
+# Fobidden access to all internal network
+sudo iptables -I DOCKER-USER -s $SRC -d 10.0.0.0/8 -j DROP
+sudo iptables -I DOCKER-USER -s $SRC -d 172.16.0.0/12 -j DROP
+
+# Allow established and related connections
+sudo iptables -I DOCKER-USER -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Allow tcp access to 10.0.4.$ip:30000-40000
 for ip in $(seq 11 19) $(seq 31 39); do
-    sudo iptables -I DOCKER-USER -s $SRC -d 10.0.4.$ip -p tcp --dport 10000:65535 -j ACCEPT
-    sudo iptables -I DOCKER-USER -s $SRC -d 10.0.4.$ip -p udp --dport 10000:65535 -j ACCEPT
+    sudo iptables -I DOCKER-USER -s $SRC -d 10.0.4.$ip -p tcp --dport 30000:40000 -j ACCEPT
 done
 ```
 

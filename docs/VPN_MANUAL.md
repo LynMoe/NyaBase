@@ -44,7 +44,7 @@ VPN 服务启动后, 正常启动后, 应该会出现如下图所示的提示, �
 
 首先需要安装一个 `socks5` 代理客户端, 本手册推荐使用 `Proxy SwitchyOmega`, 请前往[官网](https://proxy-switchyomega.com/download/)下载并安装
 
-安装完成后, 依照下列图示配置, 下图2的位置需要选择 `socks5`, 地址为 `127.0.0.1`, 端口为 `10888`
+安装完成后, 依照下列图示配置, **下图2的位置需要选择 `socks5`, 地址为 `127.0.0.1`, 端口为 `10888`**
 
 ![](imgs/vpn_psoconfig.png)
 
@@ -71,7 +71,7 @@ VPN 服务启动后, 正常启动后, 应该会出现如下图所示的提示, �
 
 + Windows 用户
   
-  > 对于 Windows 用户, 需要先安装网络工具包 `nmap`, 安装包已放置在 `vpn_toolkit` 目录下, 双击 `nmap-7.94-setup.exe` 根据提示安装即可
+  > **对于 Windows 用户, 需要先安装网络工具包 `nmap`**, 安装包已放置在 `vpn_toolkit` 目录下, 双击 `nmap-7.94-setup.exe` 根据提示安装即可
 
   + 通过命令行
     
