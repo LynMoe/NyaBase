@@ -15,12 +15,13 @@
     <a-table :columns="columns" :data="tableContainerList" :pagination="pagination">
       <template #operation="{ record }">
         <a-space>
-          <a-button type="outline" @click="restartContainer(record.containerId)">Restart</a-button>
+          <a-popconfirm type="warning" content="Do you intend to restart the container?" @before-ok="restartContainer(record.containerId)">
+            <a-button type="outline">Restart</a-button>
+          </a-popconfirm>
           <a-popconfirm type="warning" content="Do you intend to remove the container?" @before-ok="removeContainer(record.containerId)">
             <a-button type="outline" status="danger">Remove</a-button>
           </a-popconfirm>
         </a-space>
-
       </template>
     </a-table>
   </div>
@@ -103,6 +104,11 @@ export default defineComponent({
         }
       }).catch((err) => {
         console.log(err)
+        if (err.response.data.status === 400) {
+          Message.error(err.response.data.data.msg)
+        } else {
+          Message.error('Unknown error')
+        }
       })
     },
     removeContainer(containerId) {
@@ -116,6 +122,11 @@ export default defineComponent({
         }
       }).catch((err) => {
         console.log(err)
+        if (err.response.data.status === 400) {
+          Message.error(err.response.data.data.msg)
+        } else {
+          Message.error('Unknown error')
+        }
       })
     },
   },

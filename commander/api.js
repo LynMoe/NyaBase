@@ -67,6 +67,15 @@ function checkLock(username, state = 'prelock') {
   }
 }
 
+function getAgentNameByContainerId(containerId) {
+  const containerList = container.getAllContainerByUsername()
+  for (const user in containerList) {
+    if (containerList[user].map(i => i.id).includes(containerId)) {
+      return containerList[user].filter(i => i.id === containerId)[0].agentName
+    }
+  }
+}
+
 const routes = {
   '/user/login': async (query) => {
     let status, data
@@ -243,6 +252,10 @@ const routes = {
         return true
       } else return false
     }).includes(true)) || (await user.findUser(username)).group.name === 'ADMIN') {
+      if (!agentName) {
+        agentName = getAgentNameByContainerId(containerId)
+      }
+
       const agent = config.agent[agentName]
       try {
         await container.removeContainer(agent, containerId)
@@ -292,13 +305,7 @@ const routes = {
       } else return false
     }).includes(true)) || (await user.findUser(username)).group.name === 'ADMIN') {
       if (!agentName) {
-        containerList = container.getAllContainerByUsername()
-        for (const user in containerList) {
-          if (containerList[user].map(i => i.id).includes(containerId)) {
-            agentName = containerList[user].filter(i => i.id === containerId)[0].agentName
-            break
-          }
-        }
+        agentName = getAgentNameByContainerId(containerId)
       }
       
       const agent = config.agent[agentName]
