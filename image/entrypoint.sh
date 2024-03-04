@@ -41,8 +41,8 @@ fi
 
 
 # Set permission for user directory
-chown $NB_USER:$NB_GROUP /home/$NB_USER
-chmod 770 /home/$NB_USER
+chown -R $NB_USER_ID:$NB_GROUP_ID /home/$NB_USER
+chmod 774 /home/$NB_USER
 
 
 # Output the user and group info
@@ -52,12 +52,12 @@ id $NB_USER
 # Copy bashrc if not exist
 if [ ! -f "/home/$NB_USER/.bashrc" ]; then
     cp /root/.bashrc /home/$NB_USER/.bashrc
-    chown $NB_USER:$NB_GROUP /home/$NB_USER/.bashrc
+    chown $NB_USER_ID:$NB_GROUP_ID /home/$NB_USER/.bashrc
 fi
 
 
 # Mamba init
-runuser -l $NB_USER -c "/var/conda/bin/mamba init --all"
+runuser -l $NB_USER -c "/var/conda/bin/mamba init --all 2>&1 || true"
 
 
 # Check if the hostname is already in the /etc/hosts file
@@ -122,7 +122,7 @@ if [ -f "$FILE_PATH" ]; then
   runuser -l $NB_USER -c "$FILE_PATH"
 else
   echo "Init file does not exist, creating one"
-  runuser -l $NB_USER -c "echo '# This file will run once during system startup.' >> $FILE_PATH"
+  runuser -l $NB_USER -c "echo '# This file will be executed during system startups.' >> $FILE_PATH"
 fi
 
 
