@@ -33,7 +33,7 @@ function getAllContainerByUsername() {
 
     for (const username in containers) {
       containers[username].sort((a, b) => {
-        a.agentName.localeCompare(b.agentName)
+        return a.agentName.localeCompare(b.agentName)
       })
     }
   }
