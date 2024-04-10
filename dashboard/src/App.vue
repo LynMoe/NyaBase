@@ -113,7 +113,7 @@ export default defineComponent({
           Message.success({ content: 'Login success', showIcon: true })
           this.checkLogin()
         } else {
-          Message.error({ content: res.data.message, showIcon: true })
+          Message.error({ content: res.data.data.msg, showIcon: true })
         }
 
       }).catch((err) => {

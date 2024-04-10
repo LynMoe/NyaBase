@@ -90,6 +90,15 @@ const routes = {
 
     const result = await user.checkUsernamePassword(loginUsername, password)
     if (result) {
+      if ((await user.findUser(username)).group.name === 'BLOCKED') {
+        return {
+          status: 403,
+          data: {
+            msg: 'User blocked'
+          }
+        }
+      }
+
       const ordered = [loginUsername, (new Date()).getTime().toString(), crypto.generateRandomString(16),]
       const sign = crypto.hash(JSON.stringify(ordered), config.key)
       ordered.push(sign)
@@ -170,7 +179,7 @@ const routes = {
 
     const userInfo = await user.findUser(username)
     const group = userInfo.group.data
-    if (!group.server.includes(server) || !config.images[image]) {
+    if (!group.server.includes(server) || !config.images[image] || userInfo.group.name === 'BLOCKED') {
       data = {
         msg: 'Forbidden',
       }
@@ -296,6 +305,17 @@ const routes = {
       return { data, status }
     }
 
+    const userInfo = await user.findUser(username)
+
+    if (userInfo.group.name === 'BLOCKED') {
+      return {
+        status: 403,
+        data: {
+          msg: 'User blocked'
+        }
+      }
+    }
+
     let containerList = container.getAllContainerByUsername()[username]
     let agentName
     if ((containerList && containerList.map(i => {
@@ -303,7 +323,7 @@ const routes = {
         agentName = i.agentName
         return true
       } else return false
-    }).includes(true)) || (await user.findUser(username)).group.name === 'ADMIN') {
+    }).includes(true)) || userInfo.group.name === 'ADMIN') {
       if (!agentName) {
         agentName = getAgentNameByContainerId(containerId)
       }

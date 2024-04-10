@@ -13,6 +13,8 @@ async function checkToken(username, loginTime, salt, sign) {
   const user = await findUser(username)
   if (!user) return false
 
+  if (user.group.name === 'BLOCKED') return false
+
   const ordered = [username, loginTime, salt]
 
   const calSign = crypto.hash(JSON.stringify(ordered), config.key)
