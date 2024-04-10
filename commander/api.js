@@ -90,7 +90,7 @@ const routes = {
 
     const result = await user.checkUsernamePassword(loginUsername, password)
     if (result) {
-      if ((await user.findUser(username)).group.name === 'BLOCKED') {
+      if ((await user.findUser(loginUsername)).group.name === 'BLOCKED') {
         return {
           status: 403,
           data: {

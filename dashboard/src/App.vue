@@ -112,13 +112,14 @@ export default defineComponent({
           axios.defaults.headers.common['x-auth'] = res.data.data.token
           Message.success({ content: 'Login success', showIcon: true })
           this.checkLogin()
-        } else {
-          Message.error({ content: res.data.data.msg, showIcon: true })
         }
-
       }).catch((err) => {
         console.log(err)
-        Message.error({ content: err.message, showIcon: true })
+        if ([401, 403].includes(err.response.status)) {
+          Message.error({ content: err.response.data.data.msg, showIcon: true })
+        } else {
+          Message.error({ content: err.message, showIcon: true })
+        }
       })
     },
     checkLogin() {
