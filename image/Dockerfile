@@ -1,4 +1,5 @@
-FROM ubuntu:22.04
+ARG BASE_CONTAINER=ubuntu:22.04
+FROM $BASE_CONTAINER
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -37,7 +38,6 @@ ENV CONDA_DIR=/var/conda \
     SHELL=/bin/bash \
     PYTHON_VERSION=3.10
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY motd.txt /etc/motd
 
 RUN set -x && \
     # Miniforge installer
@@ -67,6 +67,8 @@ RUN set -x && \
 # COPY healthcheck.sh /usr/local/bin/healthcheck.sh
 # HEALTHCHECK --interval=120s --timeout=15s --start-period=30s \  
 #     CMD sh /usr/local/bin/healthcheck.sh
+
+COPY motd.txt.tmp /etc/motd
 
 WORKDIR /
 
