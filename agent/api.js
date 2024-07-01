@@ -125,6 +125,15 @@ async function handleRoutes(req, res) {
       status = 500
       break
 
+    case '/docker/kill':
+      if (payload.containerId) {
+        const result = await docker.dockerKill(payload.containerId)
+        if (result) break
+      }
+
+      status = 500
+      break
+
     default:
       status = 404
       break

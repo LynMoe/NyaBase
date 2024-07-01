@@ -41,7 +41,7 @@
                 </template>
                 <template #default>Refresh</template>
               </a-button>
-              <a-select :style="{ width: '80px' }" placeholder="Time Period" @change="getData" v-model="timePeriod"
+              <a-select :style="{ width: '80px' }" placeholder="Time Period" v-model="timePeriod"
                 :trigger-props="{ autoFitPopupMinWidth: true }">
                 <a-option value="3600" default>1h</a-option>
                 <a-option value="21600">6h</a-option>
@@ -133,7 +133,23 @@ export default defineComponent({
           // console.log(res.data)
           this.serverList = res.data.data.serverList
           this.selectedServer = this.serverList[0]
-          this.getData()
+
+          return axios.get('/container/getMeta').then((res) => {
+            if (res.data.status === 200) {
+              const data = res.data.data
+
+              const server = data.containerList[0] && data.containerList[0].agentName
+
+              if (server) {
+                this.selectedServer = server
+              }
+            }
+          }).catch((err) => {
+            console.log(err)
+            Message.error('Failed to get container list')
+          }).finally(() => {
+            this.getData()
+          })
         }
       }).catch((err) => {
         console.log(err)
@@ -352,6 +368,12 @@ export default defineComponent({
       },
       visibleChangePassword: false,
     }
+  },
+  watch: {
+    timePeriod() {
+      clearInterval(this.intervalId)
+      this.getData()
+    },
   },
   mounted() {
     this.getServer()

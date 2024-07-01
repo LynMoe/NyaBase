@@ -67,10 +67,57 @@ async function dockerRestart(containerId) {
       return false
     }
 
+    // set restart policy to always
+    const { stdout: stdout2, stderr: stderr2 } = await exec(`docker update --restart=always ${containerId}`)
+    if (stderr2) {
+      logger.error({
+        message: 'Error updating restart policy',
+        stderr2,
+      })
+      return false
+    }
+
     logger.info({
       message: 'Container restarted',
-      stdout,
+      stdout: stdout + stdout2,
     })
+    
+    return stdout.trim()
+  } catch (e) {
+    logger.error(e)
+  }
+}
+
+async function dockerKill(containerId) {
+  logger.info({
+    message: 'Docker kill',
+    containerId,
+  })
+  try {
+    const { stdout, stderr } = await exec(`docker kill ${containerId}`)
+    if (stderr) {
+      logger.error({
+        message: 'Error killing docker',
+        stderr,
+      })
+      return false
+    }
+
+    // set restart policy to never
+    const { stdout: stdout2, stderr: stderr2 } = await exec(`docker update --restart=no ${containerId}`)
+    if (stderr2) {
+      logger.error({
+        message: 'Error updating restart policy',
+        stderr2,
+      })
+      return false
+    }
+
+    logger.info({
+      message: 'Container killed',
+      stdout: stdout + stdout2,
+    })
+
     return stdout.trim()
   } catch (e) {
     logger.error(e)
@@ -81,4 +128,5 @@ module.exports = {
   dockerRun,
   dockerRestart,
   dockerStopAndRemove,
+  dockerKill,
 }

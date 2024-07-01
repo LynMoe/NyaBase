@@ -54,7 +54,7 @@ async function processAgent(agent) {
 
   logger.info({
     message: 'Agent processed',
-    agent,
+    agent: agent.name,
   })
 }
 

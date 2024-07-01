@@ -226,7 +226,7 @@ const routes = {
         message: 'Create container error',
         error: e,
       })
-      
+
       status = 500
       data = {
         msg: 'Internal service error',
@@ -327,7 +327,7 @@ const routes = {
       if (!agentName) {
         agentName = getAgentNameByContainerId(containerId)
       }
-      
+
       const agent = config.agent[agentName]
       await container.restartContainer(agent, containerId)
 
@@ -342,6 +342,34 @@ const routes = {
     }
 
     checkLock(username, 'lock')
+
+    return {
+      status,
+      data,
+    }
+  },
+  '/container/kill': async (query) => {
+    let status, data
+
+    const { username, containerId } = query
+
+    const userInfo = await user.findUser(username)
+    if (userInfo.group.name !== 'ADMIN') {
+      data = {
+        msg: 'What\'s wrong with you?'
+      }
+      status = 401
+      return { data, status }
+    }
+
+    let agentName = getAgentNameByContainerId(containerId)
+
+    const agent = config.agent[agentName]
+    await container.killContainer(agent, containerId)
+
+    data = {
+      msg: 'Success'
+    }
 
     return {
       status,
@@ -456,10 +484,6 @@ const routes = {
   '/admin/updateUser': async (query) => {
     let status, data
     let { username, createUsername, createPassword, createGroupName, createComment } = query
-    createUsername = `${createUsername}`.trim()
-    createPassword = `${createPassword}`.trim()
-    createGroupName = `${createGroupName}`.trim()
-    createComment = `${createComment}`.trim()
 
     if (!createUsername || (!createPassword && !createGroupName && !createComment)) {
       data = {
@@ -478,9 +502,9 @@ const routes = {
     }
 
     const needChange = {}
-    if (createPassword) needChange.password = createPassword
-    if (createGroupName) needChange.group = createGroupName
-    if (createComment) needChange.comment = createComment
+    if (createPassword) needChange.password = `${createPassword}`.trim()
+    if (createGroupName) needChange.group = `${createGroupName}`.trim()
+    if (createComment) needChange.comment = `${createComment}`.trim()
 
     await user.updateUser(createUsername, needChange)
     data = {

@@ -103,9 +103,20 @@ async function restartContainer(agent, containerId) {
   })
 }
 
+async function killContainer(agent, containerId) {
+  logger.info({
+    message: 'Kill container',
+    agent, containerId
+  })
+  return await req(agent.url, '/docker/kill', agent.key, {
+    containerId: containerId
+  })
+}
+
 module.exports = {
   createContainer,
   removeContainer,
   restartContainer,
   getAllContainerByUsername,
+  killContainer,
 }
