@@ -52,13 +52,20 @@ async function createContainer(agent, imageName, envs) {
 
   for (const i in image.cmd) {
     let cmd = image.cmd[i]
-    let prefix = ''
+    let prefix = []
     if (cmd.startsWith('|')) {
       cmd = cmd.split('|')
-      prefix = cmd[1]
+      prefix = `${cmd[1]}`.split(',')
       cmd = cmd.slice(2).join('|')
 
-      if (!envs[prefix]) {
+      let flag = false
+      for (const key of prefix) {
+        if (!envs[key]) {
+          flag = true
+          break
+        }
+      }
+      if (flag) {
         image.cmd[i] = ''
         continue
       }
